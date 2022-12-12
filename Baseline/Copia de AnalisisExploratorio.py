@@ -83,7 +83,7 @@ def Recorte(DF,minp=100,maxp=500):
 ##Cargando data
 #dbfile = '/content/drive/MyDrive/Datos/NoticiasReforma2009.db'
 #dbfile="/content/drive/Othercomputers/My Computer/Computo Estadistico/PIA-CD2/NoticiasReforma2009.db"
-dbfile='D:/Computo Estadistico/PIA-CD2/NoticiasReforma2009.db'
+dbfile='D:/Computo Estadistico/PIA-CD2_v2/NoticiasReforma2009.db'
 DATA=conexiondb(dbfile)
 df_N2009=DATA[1]
 #df_R2009=DATA[0]
@@ -108,9 +108,9 @@ contadorP(df_N2009v2["articulo"],500)
 
 #Limpiar nltk
 categoria="articulo"
-resumenA=limpiarNLTK(df_N2009[categoria],categoria)
+resumenA=limpiarNLTK(df_N2009v2[categoria],categoria)
 categoria="resumen"
-resumenR=limpiarNLTK(df_N2009[categoria],categoria)
+resumenR=limpiarNLTK(df_N2009v2[categoria],categoria)
 
 #contador de palabras despues de limpiar
 ##Resumen
@@ -194,6 +194,7 @@ def build_similarity_matrix(sentences, stop_words):
 Texto=resumenA[0]
 Texto=df_N2009["articulo"][8]
 '''
+
 Texto=df_N2009v2["articulo"][0]
 
 def generate_summary(Texto, top_n=5,c=0,MaxP=400):
@@ -228,12 +229,41 @@ def generate_summary(Texto, top_n=5,c=0,MaxP=400):
     #print("Summarize Text: \n", ". ".join(summarize_text))
     return Resumen
 
+
+df_N2009v3=df_N2009v2.copy()
+categoria="articulo"
+resumenNR=limpiarNLTK(df_N2009v3[categoria],categoria)
+df_N2009v3[categoria]
+
 # let's begin
 resumenPred=[]
 c=0
-for i in df_N2009v2["articulo"]:
+for i in df_N2009v3["articulo"]:
     resumenPred.append(generate_summary( i, 4,c,400))
-    if c%100==0:
+    if c%1000==0:
         print(c)
     c=c+1
+    
+df_N2009v3["newresumen"]=resumenPred
+categoria="newresumen"
+resumenNR=limpiarNLTK(df_N2009v3[categoria],categoria)
+df_N2009v3["newresumen"]=resumenNR
 
+resumenPred[0]
+#listaTxt=resumenPred
+listaTxt=df_N2009v3["articulo"]
+i=0
+def limpiarNLTK(listaTxt,categoria):   
+    resumen=[]
+    for i in range (45086):
+        text_tokens = word_tokenize(listaTxt[i])
+        tokens_without_sw = [word for word in text_tokens if not word in stopSpanish]
+        tokens_without_sw = [word.lower() for word in tokens_without_sw if word.isalpha()]
+        resumen.append(' '.join(tokens_without_sw))
+    return resumen
+df_N2009v2["articulo"]=resumen
+df_N2009v2.to_csv('D:/Computo Estadistico/semestre 3/ciencia de datos 2/newresumenbaseline2.csv', sep=';')
+
+
+len(df_N2009v3["articulo"][5].split())
+len(df_N2009v3["newresumen"][5].split())
